@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,13 +20,15 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class Profession implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "num_profession")
 	private Long numProfession;
+	@Column(name = "titre_profession")
 	private String titreProfession;
 	
 	@JsonBackReference(value="user-profession")
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "Utilisateur_Profession",
-	joinColumns = @JoinColumn(name="numProfession"), inverseJoinColumns = @JoinColumn(name="id_user"))
+	joinColumns = @JoinColumn(name="num_profession"), inverseJoinColumns = @JoinColumn(name="id_user"))
 	@JsonSetter
 
 	private List<Utilisateur> utilisateurs;

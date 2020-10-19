@@ -2,17 +2,31 @@ package com.devfam.miag.account.services;
 
 import java.io.Serializable;
 
-public class AuthResponse implements Serializable {
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
+public class AuthResponse implements Serializable {
+	
+	@JsonSetter
     private String userName;
+	@JsonSetter
     private String token;
 
     public AuthResponse(String userName, String token) {
         this.userName = userName;
         this.token = token;
     }
+    
+    
 
-    public String getUserName() {
+    public AuthResponse() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+
+	public String getUserName() {
         return userName;
     }
 

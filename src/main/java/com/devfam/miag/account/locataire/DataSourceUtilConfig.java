@@ -1,36 +1,39 @@
 package com.devfam.miag.account.locataire;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import com.devfam.miag.account.entities.DataSourceConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
+@Component
 public class DataSourceUtilConfig {
+	// Classe qui permettra de configurer les champs du datasource config a partir du fichier properties config
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceUtilConfig.class);
-
-    public static DataSource createAndConfigureDataSource(DataSourceConfig masterTenant) {
-    	  HikariDataSource ds = new HikariDataSource();
-          ds.setUsername(masterTenant.getUsername());
-          ds.setPassword(masterTenant.getPassword());
-          ds.setJdbcUrl(masterTenant.getUrl());
-          ds.setDriverClassName(masterTenant.getDriverClassName());
-          ds.setConnectionTimeout(20000);
-         
-          ds.setMinimumIdle(3);
-         
-          ds.setMaximumPoolSize(500);
-          
-          ds.setIdleTimeout(300000);
-          
-          ds.setConnectionTimeout(20000);
-          // Setting up a pool name for each tenant datasource
-          String tenantConnectionPoolName = masterTenant.getName() + "-connection-pool";
-          ds.setPoolName(tenantConnectionPoolName);
-          LOGGER.info("Configured datasource:" + masterTenant.getName() + ". Connection pool name:" + tenantConnectionPoolName);
-          return ds;
-    }
+	
+	
+	private String username;
+	private String password;
+	private String driverClassName;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getDriverClassName() {
+		return driverClassName;
+	}
+	public void setDriverClassName(String driverClassName) {
+		this.driverClassName = driverClassName;
+	}
+	
+	
+	
+	
 }

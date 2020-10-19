@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.devfam.miag.account.dao.UtilisateurRepository;
 import com.devfam.miag.account.entities.Profession;
 import com.devfam.miag.account.entities.Role;
 import com.devfam.miag.account.entities.Utilisateur;
+import com.devfam.miag.account.web.UtilisateurController;
 
 
 
@@ -28,7 +31,7 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 	PasswordEncoder bCryptPasswordEncoder;
 
 		
-	
+	private static final  Logger log =LoggerFactory.getLogger(UtilisateurServiceImplementation.class);
 	@Override
 	public Utilisateur addUser(Utilisateur user) {
 		// Verification d'un utilisateur 
@@ -191,13 +194,16 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 	@Override
 	public void addStatus(String username, String role) {
 		//Accorder un nouveau role a un utilisateur
-		Utilisateur user = this.getUserByName(username);
+		Utilisateur user = this.getUserByUsername(username);
 		Role roles= roleService.findByRole(role);
 		if(user !=null && role!=null) {
+			log.info("les roles presntes dans user "+user.getRole().size());
 			user.getRole().add(roles);
 			
-			System.out.println();
+		
+			userRepository.save(user);
 		}
+		
 	}
 	
 	@Override
@@ -217,6 +223,19 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 		
 		return user;
 		
+	}
+	@Override
+	public void accordPrivilleges(String username, List<String> roles) {
+		
+		if(!roles.isEmpty()) {
+			// utiliser l'api
+			for(String role:roles) {
+				if(!role.equals("USER"))
+				 System.out.println("LE ROLE DE TOUR est "+role);
+					this.addStatus(username, role);
+				
+			}
+		}
 	}
 
 

@@ -1,10 +1,11 @@
 package com.devfam.miag.account.web;
 
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,11 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.devfam.miag.account.TenantContexte;
 import com.devfam.miag.account.dao.DataSourceConfigRepository;
 import com.devfam.miag.account.dao.ProfessionRepository;
 import com.devfam.miag.account.dao.RoleRepository;
 import com.devfam.miag.account.entities.Utilisateur;
+import com.devfam.miag.account.services.AuthResponse;
 import com.devfam.miag.account.services.MasterTenantService;
 import com.devfam.miag.account.services.UtilisateurService;
 
@@ -52,7 +53,7 @@ public class UtilisateurController {
 	DataSourceConfigRepository master;
 	
 	@Autowired
-	ProfessionRepository profRepo;;	@Autowired
+	ProfessionRepository profRepo;
 	
 
 	
@@ -129,26 +130,11 @@ public class UtilisateurController {
 		}
 	}
 	
-	/*
-	 * // Afficher les taches a realiser par un seul utilisateur
-	 * 
-	 * @GetMapping(value="/tacheToRealise/{idUser}") public List<Tache>
-	 * getTacheToRealiseForUser(@PathVariable Long idUser){ List<Tache> taches =
-	 * userService.TacheToRealise(idUser); return taches; }
-	 * 
-	 * 
-	 * // Afficher les message envoyes recu pour un utilisateur
-	 * 
-	 * @GetMapping(value="/boiteEnvoi/{idUser}") public List<Message>
-	 * getSenddeMessages(@PathVariable Long idUser){ return
-	 * userService.getAllSendedMessageFromUser(idUser); }
-	 * 
-	 * // Afficher les message recu pour un utilisateur
-	 * 
-	 * @GetMapping(value="/boiteReception/{idUser}") public List<Message>
-	 * getRecivedMessages(@PathVariable Long idUser){ return
-	 * userService.getAllRecivedMessageFromUser(idUser); }
-	 * 
-	 */
 	
+	@PostMapping(value="/addPrivilleges/{username}",consumes= {"application/json"})
+	public  ResponseEntity<?> accorderPrivilleges(@PathVariable String username,@RequestBody List<String> roles) {
+		log.info("La liste des roles eest vide ou non"+roles.size());
+		userService.accordPrivilleges(username, roles);
+		return  ResponseEntity.ok("Les privillèges ont été modifié");
+	}
 }

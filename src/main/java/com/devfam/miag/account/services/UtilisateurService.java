@@ -34,5 +34,7 @@ public interface UtilisateurService {
 	
 	// Service Login
 	public Utilisateur Login(Utilisateur user);
+	// accorder des privilege a un user
+	public void accordPrivilleges(String username, List<String> roles);
 	
 }

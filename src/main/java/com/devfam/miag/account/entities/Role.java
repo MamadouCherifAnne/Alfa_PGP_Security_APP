@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 public class Role implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name="idRole")
+	@Column(name="id_role")
 	private Long idRole;
 	private String role;
 	

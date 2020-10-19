@@ -7,7 +7,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
@@ -23,12 +22,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.ApplicationScope;
 
 import com.devfam.miag.account.TenantContexte;
 import com.devfam.miag.account.entities.DataSourceConfig;
 import com.devfam.miag.account.entities.Utilisateur;
-import com.devfam.miag.account.locataire.UserLocataireInformation;
 import com.devfam.miag.account.services.AuthResponse;
 import com.devfam.miag.account.services.JWTUTIL;
 import com.devfam.miag.account.services.MasterTenantService;
@@ -63,7 +60,7 @@ public class AuthentificationController {
 	
 	
 	
-	@PostMapping(value="/login")
+	@PostMapping(value="/login",produces = {"application/json"})
     public ResponseEntity<?> userAuthentification(@RequestBody @NotNull Utilisateur user) throws AuthenticationException, Exception {
         LOGGER.info("userLogin() method call...");
         
@@ -71,19 +68,8 @@ public class AuthentificationController {
             return new ResponseEntity<>("Les donnes sont vides ", HttpStatus.BAD_REQUEST);
         }
         Utilisateur user1 = userService.getUserByUsername(user.getUsername());
-        //set database parameter
-        DataSourceConfig masterTenant = masterTenantService.getByTenantId(user1.getCompany());
-        if(null == masterTenant || !masterTenant.isInitialize()){
-            throw new RuntimeException("Please contact service provider.");
-        }
-        
-        System.out.println("MASTER TENANT ####"+masterTenant.getName());
-        //TenantContexte.setCurrentTenant(masterTenant.getName());
-        
-       // loadCurrentDatabaseInstance(masterTenant.getName(), user1.getUsername());
-            
-        System.out.println("LE CONTEXTE"+TenantContexte.getCurrentTenant()+"###"+masterTenant.getName());
-        
+     
+       
         final Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user1.getUsername(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -98,24 +84,6 @@ public class AuthentificationController {
 	        mapValue.put(userName, databaseName);
 	    }
 
-	  @Bean(name = "userTenantInfo")
-	    @ApplicationScope
-	    public UserLocataireInformation setMetaDataAfterLogin() {
-		  UserLocataireInformation tenantInformation = new UserLocataireInformation();
-	        if (mapValue.size() > 0) {
-	            for (String key : mapValue.keySet()) {
-	                if (null == userDbMap.get(key)) {
-	                    //Here Assign putAll due to all time one come.
-	                    userDbMap.putAll(mapValue);
-	                } else {
-	                    userDbMap.put(key, mapValue.get(key));
-	                }
-	            }
-	            mapValue = new HashMap<>();
-	        }
-	        tenantInformation.setMap(userDbMap);
-	        return tenantInformation;
-	    }
   }
 
 

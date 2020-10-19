@@ -26,7 +26,7 @@ public class Utilisateur implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name="idUser")
+	@Column(name="id_user")
 	private Long idUser;
 	@Column(unique = true)
 	private String username;
