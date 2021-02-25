@@ -1,6 +1,7 @@
 package com.devfam.miag.account.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +16,6 @@ import com.devfam.miag.account.dao.UtilisateurRepository;
 import com.devfam.miag.account.entities.Profession;
 import com.devfam.miag.account.entities.Role;
 import com.devfam.miag.account.entities.Utilisateur;
-import com.devfam.miag.account.web.UtilisateurController;
 
 
 
@@ -37,9 +37,9 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 		// Verification d'un utilisateur 
 
 		Optional<Utilisateur> use=userRepository.findByUsername(user.getUsername());
-		if(use.isPresent()) throw new RuntimeException("Cet Utilisateur existe deja, essayer avec un autre username");
-		
-		
+		if(use.isPresent()) { 
+			return null;
+		}
 			/*
 			 *  verification que la liste des profession nest pas null puis actualiser la liste des utilisateur
 			 *  de chacune de ces professions
@@ -79,9 +79,13 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 			Utilisateur oldUser= userRepository.getOne(user.getIdUser());
 			
 			// Verifier que au cours de la modification qu'il ne met pas un username existant
-			if(user.getUsername() != oldUser.getUsername()) {
+			log.info("username oldUser "+oldUser.getUsername() +"  == "+user.getUsername());
+			if(!user.getUsername().equals(oldUser.getUsername())) {
 				Optional<Utilisateur> use=userRepository.findByUsername(user.getUsername());
-				if(use.isPresent()) throw new RuntimeException("Cet Utilisateur existe deja, essayer avec un autre username");
+				if(use.isPresent()) {
+					return null;
+					//throw new RuntimeException("Cet Utilisateur existe deja, essayer avec un autre username");
+				}
 				
 			}
 		
@@ -91,31 +95,21 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 			oldUser.setEmail(user.getEmail());
 			oldUser.setTelephone(user.getTelephone());
 			oldUser.setPrenom(user.getPrenom());
-			oldUser.setRole(user.getRole());
+			oldUser.setNom(user.getNom());
+			oldUser.setUsername(user.getUsername());
 			
 			// actualiser la profession
-			if(user.getProfessions() !=null) {
-				List<Profession> listprof =new ArrayList<>();
-				
-				for(Profession p:user.getProfessions()) {
-				listprof.add(profRepo.findByNumProfession(p.getNumProfession()).get());
-				}
-			oldUser.setProfessions(listprof);	
+			// Gerer le mot de passe
+			if(user.getPassword() != null) {
+				oldUser.setPassword((bCryptPasswordEncoder.encode(user.getPassword())));
 			}
 			
-			
-			////////////////////////////////////////////////////////////////////////////
-			
-			
-			if(userRepository.findByNom(user.getNom())==null) {
-			oldUser.setNom(user.getNom());
 
-			}
 		}
 		
-
 		return userRepository.save(oldUser);
-
+		
+		
 	}
 	
 
@@ -185,8 +179,15 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 
 	@Override
 	public boolean deleteUser(Long id) {
-		// TODO Auto-generated method stub
-		return false;
+		// Verifier si lutilisqteur existe dabord
+
+		Utilisateur user = new Utilisateur();
+		Optional<Utilisateur> verifUser = userRepository.findByIdUser(id);
+		if(verifUser.isPresent()) {
+			 userRepository.deleteById(id);
+			 return true;
+		}
+			return false;
 	}
 
 
@@ -195,11 +196,21 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 	public void addStatus(String username, String role) {
 		//Accorder un nouveau role a un utilisateur
 		Utilisateur user = this.getUserByUsername(username);
+		
 		Role roles= roleService.findByRole(role);
 		if(user !=null && role!=null) {
-			log.info("les roles presntes dans user "+user.getRole().size());
-			user.getRole().add(roles);
+			Collection<Role> listeRoles = new ArrayList<>();
+			//log.info("les roles presntes dans user "+user.getRole().size());
+				if(role.equals("USER")) {
+					listeRoles.add(roles);
+					user.setRole(listeRoles);
+				}else {
+				if(user.getRole() != null && !user.getRole().contains(roles)) {
+					user.getRole().add(roles);
+				}
+				}
 			
+			//user.setRole(listeRoles);
 		
 			userRepository.save(user);
 		}
@@ -226,17 +237,60 @@ public class UtilisateurServiceImplementation implements UtilisateurService{
 	}
 	@Override
 	public void accordPrivilleges(String username, List<String> roles) {
+		Utilisateur user = getUserByUsername(username);
+		user.setRole(null);
 		
-		if(!roles.isEmpty()) {
+		if(roles !=null && !roles.isEmpty()) {
+			System.out.println(user+"////////////////////////////");
+			user =userRepository.save(user);
+			this.addStatus(username, "USER");
 			// utiliser l'api
 			for(String role:roles) {
-				if(!role.equals("USER"))
-				 System.out.println("LE ROLE DE TOUR est "+role);
-					this.addStatus(username, role);
-				
-			}
+				if(!role.equals("USER") )
+					
+						System.out.println("LE ROLE DE TOUR est "+role);
+						this.addStatus(username, role);
+					}
 		}
 	}
+
+
+
+	@Override
+	public Utilisateur addUserProprietaire(Utilisateur user) {
+		// Verification d'un utilisateur 
+
+				Optional<Utilisateur> use=userRepository.findByUsername(user.getUsername());
+				if(use.isPresent()) { 
+					return null;
+				}
+					/*
+					 *  verification que la liste des profession nest pas null puis actualiser la liste des utilisateur
+					 *  de chacune de ces professions
+					 */
+					if(user.getProfessions() !=null) {
+								List<Profession> listprof =new ArrayList<>();
+								
+								for(Profession p:user.getProfessions()) {
+								listprof.add(profRepo.findByNumProfession(p.getNumProfession()).get());
+								}
+							user.setProfessions(listprof);	
+					}
+					user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+					Role role  = roleService.findByRole("SUPERADMIN");
+					/*Collection<Role> roles =new ArrayList<>();
+					roles.add(role);
+					user.setRole(roles);*/
+					user.getRole().add(role);
+					
+					Utilisateur newUser=userRepository.save(user);
+					
+					
+					
+					
+					return newUser ;
+	}
+	
 
 
 

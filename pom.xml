@@ -11,7 +11,8 @@
 	<groupId>com.devfam.iscae</groupId>
 	<artifactId>DevFamSpringWS</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>DevFamSpringSecurity</name>
+	<packaging>war</packaging>
+	<name>AlfaSecurityApp</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -29,7 +30,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web-services</artifactId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -95,6 +96,12 @@
 			<artifactId>java-jwt</artifactId>
 			<version>3.4.1</version>
 		</dependency>
+				<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+</dependency>
+		
 	</dependencies>
 
 	<build>

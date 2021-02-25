@@ -20,7 +20,7 @@ import com.devfam.miag.account.services.RoleService;
 @RestController
 @RequestMapping("/role")
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 
 
 public class RoleController {

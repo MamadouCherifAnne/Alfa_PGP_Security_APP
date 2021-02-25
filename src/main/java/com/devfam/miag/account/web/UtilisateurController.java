@@ -21,9 +21,9 @@ import com.devfam.miag.account.dao.DataSourceConfigRepository;
 import com.devfam.miag.account.dao.ProfessionRepository;
 import com.devfam.miag.account.dao.RoleRepository;
 import com.devfam.miag.account.entities.Utilisateur;
-import com.devfam.miag.account.services.AuthResponse;
 import com.devfam.miag.account.services.MasterTenantService;
 import com.devfam.miag.account.services.UtilisateurService;
+import com.iscae.alpha.pgp.dto.UtilisateurDto;
 
 
 
@@ -35,7 +35,7 @@ import com.devfam.miag.account.services.UtilisateurService;
 
 public class UtilisateurController {
 	private static final  Logger log =LoggerFactory.getLogger(UtilisateurController.class);
-
+	
 	
 	@Autowired
 	LocalContainerEntityManagerFactoryBean  entityManagerFactory;
@@ -115,19 +115,43 @@ public class UtilisateurController {
 
 	}
 	
+	@PostMapping(value="/newLocataire", consumes={"application/json"})
+	public Utilisateur addUserProprietaire(@RequestBody Utilisateur user) {
+	
+		return userService.addUserProprietaire(user);
+
+	}
+	
 
 	
-	@PostMapping("/update/{id}")
-	public String updateUser(@PathVariable Long id,@RequestBody Utilisateur user) {
-		try {
-
-		user.setIdUser(id);
-		userService.updateUser(user);
-		return "Succes";
-		}catch(Exception e) {
-			return e.getMessage()+"La modification n'a pa pu être effectués";
+	@PostMapping("/update/{username}")
+	public ResponseEntity<Utilisateur >updateUser(@PathVariable String username,@RequestBody UtilisateurDto user) {
+		/*try {*/
+			Utilisateur utilisateur = null;
+			Utilisateur us1 = userService.getUserByUsername(username);
+			if(us1 != null) {
+			Utilisateur userDto = new Utilisateur();
+			userDto.setUsername(user.getUsername());
+			userDto.setNom(user.getNom());
+			userDto.setPrenom(user.getPrenom());
+			userDto.setActif(false);
+			userDto.setTelephone(user.getTelephone());
+			userDto.setEmail(user.getEmail());
+			userDto.setAdresse(user.getAdresse());
+			userDto.setCompany(user.getCompany());
+			userDto.setPassword(user.getPassword());
+			userDto.setIdUser(us1.getIdUser());
 			
-		}
+			userService.accordPrivilleges(username, user.getRoles());
+			utilisateur = userService.updateUser(userDto);
+			
+			}
+			return ResponseEntity.ok(utilisateur);
+		/*}catch(Exception e) {
+			log.info("Le probleme est "+e.getMessage());
+			return null ;
+			
+		}*/
 	}
 	
 	

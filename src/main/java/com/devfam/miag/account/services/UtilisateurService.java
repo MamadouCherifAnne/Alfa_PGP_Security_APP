@@ -11,6 +11,8 @@ public interface UtilisateurService {
 	// Ajout d'un utilisateur
 	public Utilisateur addUser(Utilisateur user);
 	
+	public Utilisateur addUserProprietaire(Utilisateur user);
+	
 	// Modification du profil de l'utilisateur
 	public Utilisateur updateUser(Utilisateur user);
 	
